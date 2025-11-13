@@ -1,0 +1,14 @@
+_target_: src.methods.MTopDiv
+zero_out: prompt
+analysis_sites: all #[[18, 2], [18, 3], [7, 18], [12, 7], [14, 6], [28, 0]] # [[21, 15], [21, 19], [22, 27], [15, 27]] # [[16, 19], [8, 25], [12, 15]]
+mode: unsupervised
+model_name: ${model_name}
+dtype: float16
+device: cuda
+cache_dir: cache/mtopdiv
+normalize_by_length: True
+n_jobs: 16
+critical_size: 256
+n_layers: 32
+n_heads: 32
+n_max: 6

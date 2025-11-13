@@ -1,0 +1,5 @@
+_target_: src.methods.lookback_lens.lookback_detector.LookbackLens
+model_name: ${model_name}
+cache_dir: cache/lookback
+device: "cuda"
+dtype: "float16"

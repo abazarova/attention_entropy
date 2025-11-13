@@ -1,0 +1,6 @@
+_target_: src.methods.llm_check.llm_check.LLMCheck
+model_name: ${model_name}
+cache_dir: cache/llm_check
+n_layers: 40
+device: "cuda"
+dtype: "float16"

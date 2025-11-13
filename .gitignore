@@ -1,0 +1,8 @@
+results/
+cache/
+multirun/
+.notify/
+data
+*__pycache__*
+*.pkl
+.env

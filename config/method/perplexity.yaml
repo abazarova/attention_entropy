@@ -1,0 +1,9 @@
+_target_: src.methods.Perplexity
+model_name: ${model_name} 
+dtype: float16 
+device: cuda
+
+cache_dir: cache/perplexity_scores_new
+scores_save_dir: cache/generated_logits
+
+min_k: 1

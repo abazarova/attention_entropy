@@ -1,0 +1,11 @@
+_target_: src.methods.CondEntRAUQ
+analysis_sites: all
+model_name: ${model_name}
+dtype: float16
+device: cuda
+cache_dir: cache/condent
+n_layers: 32
+n_heads: 32
+n_max: 6
+aggregation: max
+alpha: 0.3

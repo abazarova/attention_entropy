@@ -1,0 +1,11 @@
+defaults:
+  - method: mtopdiv
+  - preprocess: coqa
+  - transfer: coqa
+  - evaluation: default
+  - _self_
+
+
+model_name: Llama-3.1-8B-Instruct 
+transfer_names: ["ragtruth_qa"]
+log_output: True

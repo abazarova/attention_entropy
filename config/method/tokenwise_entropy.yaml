@@ -1,0 +1,6 @@
+_target_: src.methods.TokenwiseEntropy
+aggregation: max # min, max
+model_name: ${model_name}
+dtype: float16 
+device: cuda
+cache_dir: cache/token_distribution

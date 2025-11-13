@@ -1,0 +1,16 @@
+_target_: src.methods.HiddenAndTop
+embedding_dim: 4096
+top_features_dim: 1408
+# top_features_dim: 0
+layer: 16
+lr: 1e-5
+batch_size: 16
+epochs: 10
+validation_size: 0.1
+random_state: 42
+model_name: ${model_name}
+dtype: float16 
+device: cuda
+dim_reduction_method: False # PCA | None
+hiddens_dim_reduction: 20
+topological_features_dim_reduction: 10

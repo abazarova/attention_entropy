@@ -1,0 +1,4 @@
+_target_: src.preprocess.HotpotQA
+source_dir: data/raw/HotpotQA/old
+val_size: 150
+random_state: 42

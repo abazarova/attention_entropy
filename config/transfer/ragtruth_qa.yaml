@@ -1,0 +1,6 @@
+_target_: src.preprocess.RAGTruth
+task_type: QA
+source_dir: data/raw/RAGTruth
+save_dir: data/processed/RAGTruth
+val_size: 150
+random_state: 42

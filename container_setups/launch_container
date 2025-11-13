@@ -1,0 +1,16 @@
+#! /bin/bash
+source credentials
+
+docker run \
+	-d \
+	--shm-size=8g \
+	--memory=400g \
+	--cpuset-cpus=118-127 \
+	--user ${DOCKER_USER_ID}:${DOCKER_GROUP_ID} \
+	--name ${CONTAINER_NAME} \
+	--rm -it --init \
+	--gpus '"device=0,1,2,3,4,5"' \
+	-v /home/${USER}/${SRC}:/app \
+	${DOCKER_NAME} bash
+
+	# -v /home/${USER}/.ssh/:/home/.ssh \

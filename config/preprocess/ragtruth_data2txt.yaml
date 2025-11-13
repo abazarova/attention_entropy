@@ -1,0 +1,7 @@
+_target_: src.preprocess.RAGTruth
+model_name: ${model_name}
+task_type: Data2txt
+source_dir: data/raw/RAGTruth
+save_dir: data/processed/RAGTruth
+val_size: 150
+random_state: 42

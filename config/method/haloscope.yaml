@@ -1,0 +1,13 @@
+_target_: src.methods.haloscope.haloscope_detector.HaloscopeDetector
+model_name: ${model_name}
+cache_dir: cache/haloscope_8_09
+k_components: 7
+use_weighted_svd: true
+layer_range: [8, 24]
+device: "cuda"
+dtype: "float16"
+is_centered: true 
+training_lr: 0.001
+epochs:  100
+weight_decay: 0.0003
+nonlinear: false

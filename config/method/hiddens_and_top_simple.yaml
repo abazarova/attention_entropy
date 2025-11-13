@@ -1,0 +1,9 @@
+_target_: src.methods.HiddenAndTopSimple
+layer: 16
+aggregation: last
+model_name: ${model_name}
+dtype: float16 
+device: cuda
+dim_reduction_method: PCA
+hiddens_dim_reduction: 20
+topological_features_dim_reduction: 10

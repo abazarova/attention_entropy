@@ -1,0 +1,4 @@
+seed: 42
+k: 5
+test_size: 0.25
+val_size: 100

@@ -1,0 +1,10 @@
+defaults:
+  - method: tokenwise_entropy
+  - preprocess: squad
+  - transfer: squad
+  - evaluation: default
+  - _self_
+
+
+model_name: Llama-2-7b-chat-hf 
+transfer_names: ["squad"]

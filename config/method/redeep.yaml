@@ -1,0 +1,10 @@
+_target_: src.methods.ReDeEP
+model_name: ${model_name}
+dtype: float16 
+device: cuda:2
+cache_dir: cache/redeep
+
+knowledge_ffns: [23, 24, 21, 25, 16, 17, 28, 18, 20, 29]
+copy_heads: [[25, 0]]
+alpha: 1
+beta: 0.2

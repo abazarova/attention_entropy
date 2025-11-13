@@ -1,0 +1,4 @@
+_target_: src.preprocess.CoQA
+source_file: data/raw/CoQA/coqa_${model_name}.csv
+val_size: 150
+random_state: 42

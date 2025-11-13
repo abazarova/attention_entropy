@@ -1,0 +1,4 @@
+_target_: src.preprocess.NQSwap
+source_dir: data/raw/NQ_Swap
+val_size: 150
+random_state: 42

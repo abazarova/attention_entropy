@@ -1,0 +1,5 @@
+_target_: src.preprocess.TriviaQA
+model_name: ${model_name}
+source_dir: data/raw/TriviaQA
+val_size: 150
+random_state: 42

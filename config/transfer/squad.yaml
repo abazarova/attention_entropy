@@ -1,0 +1,4 @@
+_target_: src.preprocess.SQuAD
+source_dir: data/fixed/SQuAD
+val_size: 150
+random_state: 42

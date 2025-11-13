@@ -1,0 +1,10 @@
+_target_: src.methods.HiddenAndTopLama
+layer: 16
+features_to_use: hiddens
+aggregation: last
+model_name: ${model_name}
+dtype: float16 
+device: cuda
+dim_reduction_method: False
+hiddens_dim_reduction: 20
+topological_features_dim_reduction: 10
