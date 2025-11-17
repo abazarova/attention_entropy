@@ -20,27 +20,21 @@ def rouge_precision_substring(candidate, reference) -> float:
     candidate_lower = candidate.lower().strip()
     reference_lower = reference.lower().strip()
 
-    # If candidate is empty, precision is undefined (return 0)
     if not candidate_lower:
         return 0.0
 
-    # Case 1: Candidate is exact substring of reference -> precision = 1
     if candidate_lower in reference_lower:
         return 1.0
 
-    # Case 2: Check for partial substring matches
-    # Find the longest contiguous substring of candidate that appears in reference
     max_match_length = 0
     candidate_len = len(candidate_lower)
 
-    # Check all possible substrings of candidate
     for i in range(candidate_len):
         for j in range(i + 1, candidate_len + 1):
             substring = candidate_lower[i:j]
             if substring in reference_lower:
                 max_match_length = max(max_match_length, j - i)
 
-    # Precision = (length of longest matching substring) / (length of candidate)
     return max_match_length / candidate_len
 
 

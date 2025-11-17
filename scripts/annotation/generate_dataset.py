@@ -18,7 +18,7 @@ from transformers import (
     StoppingCriteriaList,
 )
 from transformers.tokenization_utils_base import BatchEncoding
-from utils import STOP_SEQUENCES, StoppingCriteriaSub
+from scripts.annotation.utils import STOP_SEQUENCES, StoppingCriteriaSub
 
 load_dotenv()
 
