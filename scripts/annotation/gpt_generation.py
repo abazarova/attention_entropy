@@ -52,15 +52,6 @@ async def answer(
     # return 'Placeholder ChatGPT Answer'
     return response.choices[0].message.content
 
-async def save_intermediate_results(df: pd.DataFrame, generations_path: Path, suffix: str = "intermediate"):
-    """Save intermediate results with a suffix"""
-    raw_path = generations_path / f"annotation_raw_{suffix}.csv"
-    
-    df.to_csv(raw_path, index=False)
-    
-    print(f"Intermediate results saved: {raw_path}")
-
-
 prompt = {
     "SQuAD": """I need your help to annotate hallucinations in a Question Answering (QA) task. Hallucinations in this context refer to instances where the generated answers contain factually incorrect or irrelevant information that is not supported by the provided context or common knowledge.
 

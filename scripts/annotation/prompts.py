@@ -101,15 +101,3 @@ Annotation: Yes
 
 Important: Your response must be EXACTLY one of these three options: "Yes", "No", or "N/A" with no additional text or explanation.\n\n""",
     }
-
-dataset = "CoQA"
-
-annotation_prompt = prompt[dataset]
-if dataset == "CoQA":
-    query_str = f"#Context#: {row['context']}\n#Question#: {row['question']}\n#Answer#: {row['generated_answer']}\n#Hallucination#:"
-elif dataset == "SQuAD":
-    tmp_answer = row["answers"]
-    query_str = f"Context: {row['context']}\nQuestion: {row['question']}\nCorrect answer(s): {tmp_answer}\nLLM-generated answer: {row['generated_answer']}\nAnnotation:"
-elif dataset == "XSum":
-    query_str = f"Reference Text: {row['document']}\nGenerated summary: {row['generated_summary']}\nAnnotation:"
-query_text = annotation_prompt + query_str
