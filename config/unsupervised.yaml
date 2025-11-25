@@ -1,5 +1,5 @@
 defaults:
-  - method: tokenwise_entropy
+  - method: topo_entropy
   - preprocess: squad
   - transfer: squad
   - evaluation: default

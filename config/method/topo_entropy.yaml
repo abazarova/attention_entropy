@@ -1,9 +1,9 @@
-_target_: src.methods.SemanticEntropy
+_target_: src.methods.TopologicalEntropy
 model_name: ${model_name} 
-dtype: float16 
+dtype: float32
 device: cuda
-cache_dir: cache/semantic_entropy_8_09
+cache_dir: cache/topological_entropy_w_context_fast
 generated_responses_dir: cache/generated_responses_8_09_15
-num_return_sequences: 15
+num_return_sequences: 5
 temperature: 1.0
 max_new_tokens: 256

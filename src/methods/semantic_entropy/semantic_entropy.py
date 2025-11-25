@@ -1,15 +1,9 @@
-import json
-import os
 from dataclasses import dataclass
 from typing import List, Literal, Optional
 
-import numpy as np
 import pandas as pd
 import torch
-from huggingface_hub import login
-from loguru import logger
-from sklearn.metrics import f1_score, roc_auc_score
-from tqdm import tqdm, trange
+from tqdm import tqdm
 
 from ..caching_utils import cache_result, get_dataframe_hash
 from ..extract_states import get_generated_responses, get_hidden_states
@@ -105,7 +99,7 @@ class SemanticEntropy(HallucinationDetectionMethod):
     temperature: float = 1.0
     max_new_tokens: int = 512
 
-    def fit(self, X: pd.DataFrame, y: pd.Series):
+    def fit(self, X_train: list[float], y_train: list[int], *args):
         """
         Trains the linear probe model on the provided dataset.
 
@@ -169,12 +163,6 @@ class SemanticEntropy(HallucinationDetectionMethod):
 
         return semantic_entropy["semantic_entropy"]
 
-    def fit(self, X: pd.DataFrame, y: pd.Series, *args) -> "SemanticEntropy":
-        """
-        Placeholder method for fitting the model.
-        """
-        return self
-
     def predict_score(self, X) -> List[float]:
-        """ """
+        """Placeholder."""
         return X

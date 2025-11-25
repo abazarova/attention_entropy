@@ -136,7 +136,6 @@ def evaluate(
             # Predict probabilities and classes
             y_pred_score = model.predict_score(X_split)
             y_pred = model.predict(X_split)
-
             # Calculate metrics
             try:
                 roc_auc = roc_auc_score(y_split, y_pred_score)

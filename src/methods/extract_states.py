@@ -44,7 +44,7 @@ def get_hidden_states(
         X, output_hidden_states=True, output_attentions=False, move_to_cpu=move_to_cpu
     ):
         len_answer = len(answer_ids[0])
-        hiddens_list.append(output["hidden_states"][layer][0, -len_answer:].cpu())
+        hiddens_list.append(output["hidden_states"][layer][0].cpu())
 
     return hiddens_list
 

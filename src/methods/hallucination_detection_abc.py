@@ -4,9 +4,11 @@ from abc import ABC, abstractmethod  # noqa: D100
 import numpy as np
 import pandas as pd
 from loguru import logger
+from numpy.typing import NDArray
 from sklearn.metrics import f1_score
 
 T = tp.TypeVar("T")
+
 
 class HallucinationDetectionMethod(ABC):
     """Abstract class for specifying method signatures and interface of the general hallucination detection methods."""
@@ -14,22 +16,22 @@ class HallucinationDetectionMethod(ABC):
     @abstractmethod
     def fit(
         self,
-        X_train: list[T],
-        y_train: pd.Series,
-        X_val: tp.Optional[list[T]],
-        y_val: tp.Optional[list[int]]
+        X_train: list[float | NDArray],
+        y_train: pd.Series | list[int],
+        X_val: list[float | NDArray] | None,
+        y_val: pd.Series | list[int] | None,
     ) -> "HallucinationDetectionMethod":
         """Fit the detection model on training data."""
         pass
 
     @abstractmethod
-    def predict_score(self, X: list[T]) -> np.ndarray[float]:
+    def predict_score(self, X: list[float] | list[NDArray]) -> NDArray | list[float]:
         """Predict probability of hallucination for samples from X."""
         pass
 
     @abstractmethod
-    def transform(self, X: pd.DataFrame) -> tp.Sequence[T]:
-        """Predict probability of hallucination for samples from X."""
+    def transform(self, X: pd.DataFrame) -> list[float | NDArray] | NDArray:
+        """Predict hallucination scores for samples from X."""
         pass
 
     def reset(self):
@@ -55,7 +57,7 @@ class HallucinationDetectionMethod(ABC):
         """Perform hyperparameter tuning on the validation set if needed."""
         pass
 
-    def predict(self, X: list[T]) -> np.ndarray[int]:
+    def predict(self, X: list[T]) -> NDArray[np.int_]:
         """Perform inference and return binary predictions based on the fitted threshold.
 
         Parameters
@@ -73,12 +75,11 @@ class HallucinationDetectionMethod(ABC):
             raise ValueError("Threshold is not fitted. Call 'fit_threshold' first.")
 
         scores = np.array(self.predict_score(X))
-        prediction = np.int32(scores > self.best_thr)
+        prediction = np.where(scores > self.best_thr, 1, 0)
         return prediction
 
-
     @staticmethod
-    def get_threshold(train_scores: np.ndarray[float], train_labels: pd.Series) -> float:
+    def get_threshold(train_scores: NDArray, train_labels: pd.Series) -> float:
         """Get the optimal threshold that maximizes F1 score on the training set.
 
         Parameters
@@ -104,5 +105,5 @@ class HallucinationDetectionMethod(ABC):
                 max_thr = thr
                 max_f1 = f1
 
-        logger.info(f'Selected threshold: {max_thr} with F1 score: {max_f1}')
+        logger.info(f"Selected threshold: {max_thr} with F1 score: {max_f1}")
         return max_thr

@@ -165,8 +165,7 @@ class CondEntRAUQ(HallucinationDetectionMethod):
         layer_data = list(enumerate(attention_maps))
         process_func = partial(process_layer, response_len=response_len)
 
-        with mp.Pool(processes=mp.cpu_count()) as pool:
-            results = pool.map(process_func, layer_data)
+        results = [process_func(layer_item) for layer_item in layer_data]
         # Reconstruct outputs dictionary
         for layer, layer_output in results:
             outputs[str(layer)] = layer_output
