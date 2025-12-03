@@ -1,4 +1,6 @@
+import csv
 import multiprocessing as mp
+import os
 from dataclasses import dataclass
 from functools import partial
 from itertools import product
@@ -144,7 +146,8 @@ class CondEntRAUQ(HallucinationDetectionMethod):
 
         logits = get_token_distributions(pd.DataFrame([sample]), model=llm_model)[0]
         probas = softmax(logits, dim=-1)
-        tokens_entropy = entropy(probas, axis=-1) # (reponse_len, )
+        dict_size = probas.shape[-1]
+        tokens_entropy = entropy(probas, axis=-1) / np.log(dict_size) # (reponse_len, )
         
         tokens_condent = [condent_dict[str(layer)][str(head)] for layer, head in self.analysis_sites]
         tokens_condent = np.array(tokens_condent).mean(axis=0)
@@ -249,4 +252,26 @@ class CondEntRAUQ(HallucinationDetectionMethod):
                 best_auroc = roc_auc
         self.analysis_sites = optimal_subset[:n_opt]
 
-        print("SELECTED HEADS:", self.analysis_sites)
+        # Define the CSV filename
+        csv_filename = f"results/condent_rauq_{self.model_name}.csv"
+
+        # Check if file exists, create it if not
+        if not os.path.exists(csv_filename):
+            # Create the directory if needed (handles nested paths)
+            os.makedirs(os.path.dirname(csv_filename), exist_ok=True)
+            print(f"Creating new CSV file: {csv_filename}")
+        else:
+            print(f"Appending to existing CSV file: {csv_filename}")
+
+        # Write to CSV file (mode 'a' for append, 'w' for overwrite)
+        with open(csv_filename, 'a', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            
+            # Check if file is empty to write header
+            if os.path.getsize(csv_filename) == 0:
+                writer.writerow(['Model Name', 'Heads'])
+            
+            # Write data
+            writer.writerow([self.model_name, self.analysis_sites])
+
+        print(f"Analysis sites written to {csv_filename}")
