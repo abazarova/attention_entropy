@@ -43,15 +43,16 @@ def attn_maps_to_condent(attn_maps: torch.Tensor, response_len: int):
     """
     n_tokens = attn_maps.shape[1]
     prompt_len = n_tokens - response_len
+    assert prompt_len > 1, "Context too short"
     condent_values = [] # (response_len, n_heads)
     for row_idx in range(prompt_len, n_tokens):
         rows = attn_maps[:, row_idx]
 
         prompt_rows = rows[:, :prompt_len]
         normalized_prompt_rows = prompt_rows / (prompt_rows.sum(axis=-1, keepdims=True) + 1e-5)
-        prompt_entropy = entropy(normalized_prompt_rows, axis=-1)
+        prompt_entropy = entropy(normalized_prompt_rows.float(), axis=-1)
         prompt_entropy = np.where(np.isnan(prompt_entropy), 1, prompt_entropy)
-        condent = prompt_entropy
+        condent = prompt_entropy / np.log(prompt_len)
         assert not np.isnan(condent).any(), "NaN encountered in entropy calculation"
         condent_values.append(condent)
 
