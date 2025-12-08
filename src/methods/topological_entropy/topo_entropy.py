@@ -1,11 +1,12 @@
 import time
 from dataclasses import dataclass
 from typing import List, Literal, Optional
-
+import umap
 import numpy as np
 import pandas as pd
 import torch
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 from tqdm import tqdm
 
 from ..caching_utils import cache_result, get_dataframe_hash
@@ -40,10 +41,21 @@ def get_topological_consistency(
         hidden_states = get_hidden_states(
             prompt, base_response, LAYER, llm, tokenizer, model.device
         )
+        
+        dim_method_name = 'umap'
+        if dim_method_name == 'pca':
+            dim_method = PCA(n_components=min(128, len(hidden_states)))
+        elif dim_method_name == 'umap':
+            dim_method = umap.UMAP(n_components=min(128, len(hidden_states)))
+        elif dim_method_name == 'tsne':
+            dim_method = TSNE(n_components=min(128, len(hidden_states)))
+            
+        
+            
+        
+        
 
-        pca = PCA(n_components=min(128, len(hidden_states)))
-
-        hidden_states = pca.fit_transform(hidden_states.float())
+        hidden_states = dim_method.fit_transform(hidden_states.float())
         base_graph = topology_matrix(torch.from_numpy(hidden_states))
         #base_graph = topology_matrix(hidden_states)
         graphs = []
@@ -52,7 +64,7 @@ def get_topological_consistency(
             hidden_states = get_hidden_states(
                 prompt, response, LAYER, llm, tokenizer, model.device
             )
-            hidden_states = pca.transform(hidden_states.float())
+            hidden_states = dim_method.transform(hidden_states.float())
             topology_map = topology_matrix(torch.from_numpy(hidden_states))
             # topology_map = topology_matrix(hidden_states)
 
@@ -123,6 +135,8 @@ class TopologicalEntropy(HallucinationDetectionMethod):
             cachefile_general_name + "_generated_responses.joblib"
         )
 
+        self.generated_responses_dir = 'cache/generated_responses'
+
         generated_responses = get_generated_responses(
             X,
             llm,
@@ -136,7 +150,7 @@ class TopologicalEntropy(HallucinationDetectionMethod):
 
         cachefile_general_name = f"{self.model_name}_{data_hash}"
 
-        topo_entropy_cache_name = cachefile_general_name + "_topological_entropy.joblib"
+        topo_entropy_cache_name = cachefile_general_name + "_topological_entropy_tsne.joblib"
 
         topo_entropy = get_topological_consistency(
             X,
