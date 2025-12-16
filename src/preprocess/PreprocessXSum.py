@@ -21,7 +21,7 @@ class XSum(HallucinationDetectionDataset):
         "Llama-3.1-8B-Instruct",
         "Qwen2.5-7B-Instruct",
     ]
-    source_file: str = "data/raw/XSum/xsum_Llama-2-7b-chat-hf.csv"
+    source_file: str = "app/raw/XSum/xsum_Llama-2-7b-chat-hf.csv"
     split: str = "original"
     val_size: int | float = 100
     random_state: int = 42

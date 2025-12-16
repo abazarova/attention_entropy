@@ -86,7 +86,7 @@ class CoQA(HallucinationDetectionDataset):
             )
         train_indices, test_indices = self.split_data(df)
         return (
-            pd.DataFrame(df[["id", "prompt", "response", "name"]]),
+            pd.DataFrame(df[["id", "prompt", "response", "name", "question", "context"]]),
             df["hallucination"].astype(int),
             train_indices,
             test_indices,

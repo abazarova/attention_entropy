@@ -34,51 +34,67 @@ def get_topological_consistency(
     llm, tokenizer = model.instantiate_llm()
 
     result = {"topo_entropy": []}
-    for prompt, base_response, generated_responses in tqdm(
-        zip(X["prompt"], X["response"], X["generated_responses"]),
+    for prompt, base_response, generated_responses, context, question in tqdm(
+        zip(X["prompt"], X["response"], X["generated_responses"], X['context'], X['question']),
         total=len(X["prompt"]),
     ):
-        hidden_states = get_hidden_states(
-            prompt, base_response, LAYER, llm, tokenizer, model.device
-        )
-        
-        dim_method_name = 'umap'
-        if dim_method_name == 'pca':
-            dim_method = PCA(n_components=min(128, len(hidden_states)))
-        elif dim_method_name == 'umap':
-            dim_method = umap.UMAP(n_components=min(128, len(hidden_states)))
-        elif dim_method_name == 'tsne':
-            dim_method = TSNE(n_components=min(128, len(hidden_states)))
-            
-        
-            
-        
         
 
-        hidden_states = dim_method.fit_transform(hidden_states.float())
-        base_graph = topology_matrix(torch.from_numpy(hidden_states))
-        #base_graph = topology_matrix(hidden_states)
-        graphs = []
-
-        for response in generated_responses[:5]:
+        N_splits_of_context = 5
+        rtd_scores = []
+        
+        for i in range(N_splits_of_context):
+            cur_prompt =  context[len(context) * i / N_splits_of_context  : len(context) * (i + 1)  / N_splits_of_context] + " Q: " + question + " A:"
+            cur_prompt =  lambda x: f"<|begin_of_text|>{cur_prompt}"
             hidden_states = get_hidden_states(
-                prompt, response, LAYER, llm, tokenizer, model.device
+                cur_prompt, base_response, LAYER, llm, tokenizer, model.device
             )
-            hidden_states = dim_method.transform(hidden_states.float())
-            topology_map = topology_matrix(torch.from_numpy(hidden_states))
-            # topology_map = topology_matrix(hidden_states)
+            
+            dim_method_name = 'pca'
+            if dim_method_name == 'pca':
+                dim_method = PCA(n_components=min(128, len(hidden_states)))
+            elif dim_method_name == 'umap':
+                dim_method = umap.UMAP(n_components=min(128, len(hidden_states) - 2))
+            elif dim_method_name == 'tsne':
+                dim_method = TSNE(n_components=min(128, len(hidden_states)))
+                
+                    
+                
+            
+            
 
-            if topology_map.isnan().any():
-                print("NaNs encountered in topology map")
-                breakpoint()
-            graphs.append(topology_map)
+            hidden_states = dim_method.fit_transform(hidden_states.float())
+            base_graph = topology_matrix(torch.from_numpy(hidden_states))
+            #base_graph = topology_matrix(hidden_states)
+            graphs = []
 
-        rtd_score = rtd_consistency(base_graph, graphs)
+            for response in generated_responses[:5]:
+                
+
+                hidden_states = get_hidden_states(
+                    cur_prompt, response, LAYER, llm, tokenizer, model.device
+                )
+                hidden_states = dim_method.transform(hidden_states.float())
+                topology_map = topology_matrix(torch.from_numpy(hidden_states))
+                #topology_map = topology_matrix(hidden_states)
+
+                if topology_map.isnan().any():
+                    print("NaNs encountered in topology map")
+                    breakpoint()
+                graphs.append(topology_map)
+
+            rtd_score = rtd_consistency(base_graph, graphs)
+            rtd_scores.append(rtd_score)
+        final_rtd_score = []  
+        for i in range(len(rtd_scores[0])):
+            final_rtd_score.append(min([rtd_scores[split][i] for split in range(N_splits_of_context)]))
+            
+            
         if np.isnan(rtd_score).any():
             print("NaNs encountered in rtd scores")
             breakpoint()
         result["topo_entropy"].append(
-            [elem / max(hidden_states.shape[1], 1) for elem in rtd_score]
+            [elem / max(hidden_states.shape[1], 1) for elem in final_rtd_score]
         )
 
     return result
@@ -127,7 +143,7 @@ class TopologicalEntropy(HallucinationDetectionMethod):
             max_new_tokens=self.max_new_tokens,
         )
 
-        data_hash = get_dataframe_hash(X)
+        data_hash = get_dataframe_hash(X.drop(['question', 'context'], axis=1))
 
         cachefile_general_name = f"{self.model_name}_{data_hash}"
 
@@ -147,10 +163,11 @@ class TopologicalEntropy(HallucinationDetectionMethod):
         X["generated_responses"] = generated_responses
 
         data_hash = get_dataframe_hash(X)
+        
 
         cachefile_general_name = f"{self.model_name}_{data_hash}"
 
-        topo_entropy_cache_name = cachefile_general_name + "_topological_entropy_tsne.joblib"
+        topo_entropy_cache_name = cachefile_general_name + "_topological_entropy_query_splitted_context_psa.joblib"
 
         topo_entropy = get_topological_consistency(
             X,
@@ -159,7 +176,7 @@ class TopologicalEntropy(HallucinationDetectionMethod):
             cache_name=topo_entropy_cache_name,
             cache_dir=self.cache_dir,
         )
-
+        
         return topo_entropy["topo_entropy"]
 
     def predict_score(self, X) -> List[float]:

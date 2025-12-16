@@ -37,7 +37,9 @@ def get_hidden_states(
         )
     if move_to_cpu:
         output = move_causal_lm_output_to_cpu(output)
-
+        
+    with open('/home/llm-factuality/attention_entropy/log.txt', 'w') as f:
+        f.write(str(len(output["hidden_states"])))
     return output["hidden_states"][layer][0]
 
 

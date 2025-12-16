@@ -1,5 +1,5 @@
 _target_: src.preprocess.SQuAD
 model_name: ${model_name}
-source_dir: data/fixed/SQuAD
+source_dir: /app/raw/SQuAD
 val_size: 150
 random_state: 42

@@ -1,9 +1,9 @@
 #!/bin/sh
 
 
-for model_name in Llama-2-7b-chat-hf  
+for model_name in Llama-2-7b-chat-hf #Mistral-7B-Instruct-v0.1 
 do
-	CUDA_VISIBLE_DEVICES=2 python3 run_unsupervised.py --multirun \
+	CUDA_VISIBLE_DEVICES=1 python3 run_unsupervised.py --multirun \
 	method=topo_entropy \
 	preprocess.val_size=100 \
 	transfer.val_size=100 \
@@ -18,9 +18,9 @@ done
 
 
 
-# for model_name in Llama-2-7b-chat-hf 
+# for model_name in Mistral-7B-Instruct-v0.1 #Llama-2-7b-chat-hf 
 # do
-# 	CUDA_VISIBLE_DEVICES=1 python3 run_unsupervised.py --multirun \
+# 	CUDA_VISIBLE_DEVICES=4 python3 run_unsupervised.py --multirun \
 # 	method=topo_entropy \
 # 	preprocess.val_size=100 \
 # 	transfer.val_size=100 \
@@ -29,14 +29,14 @@ done
 # 	method.dtype=float32 \
 # 	preprocess=squad \
 # 	transfer_names="[]" \
-# 	preprocess.source_dir=/app/raw/SQuAD \
+# 	#preprocess.source_dir=/app/raw/SQuAD \
 # 	evaluation.seed=42 \
 # 	method.cache_dir=cache/generated_responses
 # done
 
-# for model_name in Llama-2-7b-chat-hf
+# for model_name in Mistral-7B-Instruct-v0.1 #Llama-2-7b-chat-hf 
 # do
-# 	CUDA_VISIBLE_DEVICES=1 python3 run_unsupervised.py --multirun \
+# 	CUDA_VISIBLE_DEVICES=4 python3 run_unsupervised.py --multirun \
 # 	method=topo_entropy \
 # 	preprocess.val_size=100 \
 # 	transfer.val_size=100 \
@@ -44,7 +44,7 @@ done
 # 	method.device=cuda \
 # 	method.dtype=float32 \
 # 	preprocess=xsum \
-# 	preprocess.source_dir=/app/raw/XSum \
+# #	preprocess.source_dir=/app/raw/XSum \
 # 	transfer_names="[]" \
 # 	evaluation.seed=42 \
 # 	method.cache_dir=cache/generated_responses
