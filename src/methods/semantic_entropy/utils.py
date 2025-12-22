@@ -6,6 +6,10 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
+
+
+from sklearn.cluster import DBSCAN
+
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
@@ -16,7 +20,7 @@ class EntailmentDeberta:
         self.model = AutoModelForSequenceClassification.from_pretrained(
             "microsoft/deberta-v2-xlarge-mnli").to(self.device)
 
-    def check_implication(self, text1, text2, *args, **kwargs):
+    def count_distance(self, text1, text2, *args, **kwargs):
         inputs = self.tokenizer(text1, text2, return_tensors="pt").to(self.device)
         # The model checks if text1 -> text2, i.e. if text2 follows from text1.
         # check_implication('The weather is good', 'The weather is good and I like you') --> 1
@@ -24,52 +28,31 @@ class EntailmentDeberta:
         outputs = self.model(**inputs)
         logits = outputs.logits
         # Deberta-mnli returns `neutral` and `entailment` classes at indices 1 and 2.
-        largest_index = torch.argmax(F.softmax(logits, dim=1))  # pylint: disable=no-member
-        prediction = largest_index.cpu().item()
+        neutral_prob = F.softmax(logits, dim=1)[1]  # pylint: disable=no-member
+        contr_prob = F.softmax(logits, dim=1)[0]
+        entailment_prob = F.softmax(logits, dim=1)[2]
+        distance = (contr_prob + 0.5 * neutral_prob).cpu().item()
 
         # print('Deberta Input: %s -> %s', text1, text2)
         # print('Deberta Prediction: %s', prediction)
 
-        return prediction
+        return distance
 
 
 def get_semantic_ids(strings_list, model, strict_entailment=False, example=None):
     """Group list of predictions into semantic meaning."""
 
-    def are_equivalent(text1, text2):
-
-        implication_1 = model.check_implication(text1, text2, example=example)
-        implication_2 = model.check_implication(text2, text1, example=example)  # pylint: disable=arguments-out-of-order
-        assert (implication_1 in [0, 1, 2]) and (implication_2 in [0, 1, 2])
-
-        if strict_entailment:
-            semantically_equivalent = (implication_1 == 2) and (implication_2 == 2)
-
-        else:
-            implications = [implication_1, implication_2]
-            # Check if none of the implications are 0 (contradiction) and not both of them are neutral.
-            semantically_equivalent = (0 not in implications) and ([1, 1] != implications)
-
-        return semantically_equivalent
-
-    # Initialise all ids with -1.
-    semantic_set_ids = [-1] * len(strings_list)
-    # Keep track of current id.
-    next_id = 0
-    for i, string1 in enumerate(strings_list):
-        # Check if string1 already has an id assigned.
-        if semantic_set_ids[i] == -1:
-            # If string1 has not been assigned an id, assign it next_id.
-            semantic_set_ids[i] = next_id
-            for j in range(i+1, len(strings_list)):
-                # Search through all remaining strings. If they are equivalent to string1, assign them the same id.
-                if are_equivalent(string1, strings_list[j]):
-                    semantic_set_ids[j] = next_id
-            next_id += 1
-
-    assert -1 not in semantic_set_ids
-
-    return semantic_set_ids
+    
+    
+    distances = np.array([[0 if i == j else model.count_distance(strings_list[i], strings_list[j])  for i in range(len(strings_list))] for j in range(strings_list)])
+    distances = (distances + distances.T) / 2 # this should be saved
+    
+    
+    
+    clustering = DBSCAN(metric='precomputed').fit(distances) # eps/num_samples should be changed
+    
+    
+    return clustering
 
 
 def logsumexp_by_id(semantic_ids, log_likelihoods, agg='sum_normalized'):
