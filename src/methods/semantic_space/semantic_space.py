@@ -86,7 +86,7 @@ def get_semantic_entropy(
 
 
 @dataclass
-class SemanticEntropy(HallucinationDetectionMethod):
+class SemanticSpace(HallucinationDetectionMethod):
     model_name: Literal["Llama-2-7b-chat-hf", "Mistral-7B-Instruct-v0.1"] = (
         "Llama-2-7b-chat-hf"
     )

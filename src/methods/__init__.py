@@ -11,3 +11,4 @@ from .selfcheck.selfcheck_nli import CustomSelfCheckNLI  # noqa: F401
 from .semantic_entropy.semantic_entropy import SemanticEntropy
 from .tokenwise_entropy.tokenwise_entropy import TokenwiseEntropy  # noqa: F401
 from .topological_entropy.topo_entropy import TopologicalEntropy
+from .semantic_space.semantic_space import SemanticSpace

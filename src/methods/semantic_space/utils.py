@@ -28,9 +28,11 @@ class EntailmentDeberta:
         outputs = self.model(**inputs)
         logits = outputs.logits
         # Deberta-mnli returns `neutral` and `entailment` classes at indices 1 and 2.
-        neutral_prob = F.softmax(logits, dim=1)[1]  # pylint: disable=no-member
-        contr_prob = F.softmax(logits, dim=1)[0]
-        entailment_prob = F.softmax(logits, dim=1)[2]
+        
+
+        neutral_prob = F.softmax(logits, dim=1)[0, 1]  # pylint: disable=no-member
+        contr_prob = F.softmax(logits, dim=1)[0, 0]
+        entailment_prob = F.softmax(logits, dim=1)[0, 2]
         distance = (contr_prob + 0.5 * neutral_prob).cpu().item()
 
         # print('Deberta Input: %s -> %s', text1, text2)
@@ -44,15 +46,21 @@ def get_semantic_ids(strings_list, model, strict_entailment=False, example=None)
 
     
     
-    distances = np.array([[0 if i == j else model.count_distance(strings_list[i], strings_list[j])  for i in range(len(strings_list))] for j in range(strings_list)])
+    distances = np.array([[0 if i == j else model.count_distance(strings_list[i], strings_list[j])  for i in range(len(strings_list))] for j in range(len(strings_list))])
     distances = (distances + distances.T) / 2 # this should be saved
+
+    with open('dists.txt', 'w') as f:
+        f.write(str(distances))
     
     
+    clustering = DBSCAN(metric='precomputed', eps=0.05, min_samples=2).fit(distances) # eps/num_samples should be changed
     
-    clustering = DBSCAN(metric='precomputed').fit(distances) # eps/num_samples should be changed
+    
+    with open('debug.txt', 'w') as f:
+        f.write(str(clustering.labels_.tolist()))
     
     
-    return clustering
+    return clustering.labels_
 
 
 def logsumexp_by_id(semantic_ids, log_likelihoods, agg='sum_normalized'):
