@@ -53,7 +53,7 @@ def get_semantic_ids(strings_list, model, strict_entailment=False, example=None)
         f.write(str(distances))
     
     
-    clustering = DBSCAN(metric='precomputed', eps=0.05, min_samples=2).fit(distances) # eps/num_samples should be changed
+    clustering = DBSCAN(metric='precomputed', eps=0.1, min_samples=1).fit(distances) # eps/num_samples should be changed
     
     
     
