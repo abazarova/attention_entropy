@@ -56,11 +56,20 @@ def get_semantic_ids(strings_list, model, strict_entailment=False, example=None)
     clustering = DBSCAN(metric='precomputed', eps=0.05, min_samples=2).fit(distances) # eps/num_samples should be changed
     
     
+    
     with open('debug.txt', 'w') as f:
         f.write(str(clustering.labels_.tolist()))
     
     
-    return clustering.labels_
+    max_ = clustering.labels_.max()
+    
+    labels = clustering.labels_
+    for ind in range(len(labels)):
+        if labels[ind] == -1:
+            labels[ind] = max_ + 1
+    
+    
+    return labels
 
 
 def logsumexp_by_id(semantic_ids, log_likelihoods, agg='sum_normalized'):
