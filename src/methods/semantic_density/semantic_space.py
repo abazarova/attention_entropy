@@ -4,6 +4,8 @@ from typing import List, Literal, Optional
 import pandas as pd
 import torch
 from tqdm import tqdm
+import numpy as np
+import math
 
 from ..caching_utils import cache_result, get_dataframe_hash
 from ..extract_states import get_generated_responses, get_hidden_states
@@ -72,21 +74,44 @@ def get_semantic_entropy(
 
             with torch.no_grad():
                 log_liks_agg.append(-llm(input_ids, labels=target_ids)["loss"].item())
+                
+        
+            
+        samples = responses[10:]
+        samples_for_est = responses[:10]      
+        
+        import math
+        
+        density_ests = []
 
-        log_likelihood_per_semantic_id = logsumexp_by_id(
-            semantic_ids, log_liks_agg, agg="sum_normalized"
-        )
-        pe = predictive_entropy_rao(log_likelihood_per_semantic_id)
+        
+        for sample in samples:
+            likelihood_sum = 0
+            semantic_density = 0
+            for index, sample_for_est in enumerate(samples_for_est):
+                    average_likelihood = math.exp(log_liks_agg[index])
+
+                    semantic_distance = entailment_model(sample, sample_for_est)
+                    semantic_density += 0.5*(1.0-semantic_distance)*average_likelihood
+
+                    reverse_semantic_distance = entailment_model(sample_for_est, sample)
+                    semantic_density += 0.5*(1.0-reverse_semantic_distance)*average_likelihood
+                    likelihood_sum += average_likelihood
+            density_ests.append(semantic_density/likelihood_sum)
+            
+        
+        
+        
+        pe =  - np.array(density_ests).log().sum() / len(density_ests)
+                
 
         result["semantic_entropy"].append(pe)
-        result["naive_entropy"].append(predictive_entropy(log_liks_agg))
-        result["ca_entropy"].append(cluster_assignment_entropy(semantic_ids))
 
     return result
 
 
 @dataclass
-class SemanticSpace(HallucinationDetectionMethod):
+class SemanticEntropy(HallucinationDetectionMethod):
     model_name: Literal["Llama-2-7b-chat-hf", "Mistral-7B-Instruct-v0.1"] = (
         "Llama-2-7b-chat-hf"
     )
